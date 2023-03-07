@@ -20,6 +20,8 @@ class MapboxMap extends ChangeNotifier {
     this.onMapTapListener,
     this.onMapLongTapListener,
     this.onMapScrollListener,
+    this.onMapScrollStartListener,
+    this.onMapScrollEndListener,
   }) : _mapboxMapsPlatform = mapboxMapsPlatform {
     _proxyBinaryMessenger = _mapboxMapsPlatform.binaryMessenger;
 
@@ -188,6 +190,8 @@ class MapboxMap extends ChangeNotifier {
   OnMapTapListener? onMapTapListener;
   OnMapLongTapListener? onMapLongTapListener;
   OnMapScrollListener? onMapScrollListener;
+  OnMapScrollListener? onMapScrollStartListener;
+  OnMapScrollListener? onMapScrollEndListener;
 
   @override
   void dispose() {
@@ -594,12 +598,16 @@ class MapboxMap extends ChangeNotifier {
   void _setupGestures() {
     if (onMapTapListener != null ||
         onMapLongTapListener != null ||
-        onMapScrollListener != null) {
+        onMapScrollListener != null ||
+        onMapScrollStartListener != null ||
+        onMapScrollEndListener != null) {
       GestureListener.setup(
           _GestureListener(
             onMapTapListener: onMapTapListener,
             onMapLongTapListener: onMapLongTapListener,
             onMapScrollListener: onMapScrollListener,
+            onMapScrollStartListener: onMapScrollStartListener,
+            onMapScrollEndListener: onMapScrollEndListener
           ),
           binaryMessenger: _mapboxMapsPlatform.binaryMessenger);
       _mapboxMapsPlatform.addGestureListeners();
@@ -620,6 +628,16 @@ class MapboxMap extends ChangeNotifier {
     this.onMapScrollListener = onMapScrollListener;
     _setupGestures();
   }
+
+  void setOnMapScrollStartListener(OnMapScrollListener? onMapScrollStartListener) {
+    this.onMapScrollStartListener = onMapScrollStartListener;
+    _setupGestures();
+  }
+
+  void setOnMapScrollEndListener(OnMapScrollListener? onMapScrollEndListener) {
+    this.onMapScrollEndListener = onMapScrollEndListener;
+    _setupGestures();
+  }
 }
 
 class _GestureListener extends GestureListener {
@@ -627,11 +645,15 @@ class _GestureListener extends GestureListener {
     this.onMapTapListener,
     this.onMapLongTapListener,
     this.onMapScrollListener,
+    this.onMapScrollStartListener,
+    this.onMapScrollEndListener,
   });
 
   final OnMapTapListener? onMapTapListener;
   final OnMapLongTapListener? onMapLongTapListener;
   final OnMapScrollListener? onMapScrollListener;
+  final OnMapScrollListener? onMapScrollStartListener;
+  final OnMapScrollListener? onMapScrollEndListener;
 
   @override
   void onTap(ScreenCoordinate coordinate) {
@@ -646,5 +668,15 @@ class _GestureListener extends GestureListener {
   @override
   void onScroll(ScreenCoordinate coordinate) {
     onMapScrollListener?.call(coordinate);
+  }
+
+  @override
+  void onScrollStart(ScreenCoordinate coordinate) {
+    onMapScrollStartListener?.call(coordinate);
+  }
+
+  @override
+  void onScrollEnd(ScreenCoordinate coordinate) {
+    onMapScrollEndListener?.call(coordinate);
   }
 }

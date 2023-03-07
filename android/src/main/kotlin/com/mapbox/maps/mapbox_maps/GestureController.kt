@@ -53,9 +53,21 @@ class GestureController(private val mapView: MapView) :
         return false
       }
 
-      override fun onMoveBegin(detector: MoveGestureDetector) {}
+      override fun onMoveBegin(detector: MoveGestureDetector) {
+        fltGestureListener.onScrollStart(
+          mapView.getMapboxMap().coordinateForPixel(
+            ScreenCoordinate(detector.currentEvent.x.toDouble(), detector.currentEvent.y.toDouble())
+          ).toFLTScreenCoordinate()
+        ) {}
+      }
 
-      override fun onMoveEnd(detector: MoveGestureDetector) {}
+      override fun onMoveEnd(detector: MoveGestureDetector) {
+        fltGestureListener.onScrollEnd(
+          mapView.getMapboxMap().coordinateForPixel(
+            ScreenCoordinate(detector.currentEvent.x.toDouble(), detector.currentEvent.y.toDouble())
+          ).toFLTScreenCoordinate()
+        ) {}
+      }
     }.also { mapView.gestures.addOnMoveListener(it) }
   }
 
